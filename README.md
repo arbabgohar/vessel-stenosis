@@ -46,6 +46,10 @@ From the repository root in PowerShell, using the project’s `.venv`:
 
 The preview saves to `docs/curved_preview.png`. The ImFusion round-trip test skips when the SDK or its license is unavailable.
 
+![PowerShell output showing 50.29% measured stenosis and the saved preview path](docs/images/curved-preview-output.png)
+
+![Pytest output showing passing tests, including the ImFusion round trip](docs/images/pytest-output.png)
+
 ### Curved-vessel requirements
 
 | ID | What I checked | Test |
