@@ -4,7 +4,12 @@ I’m a quality and software V&V engineer in medical devices, and I built this p
 
 I generate a synthetic 3D vessel with a known narrowing, then use NumPy to threshold each slice and estimate its equivalent circular diameter. I compare the smallest diameter with the median diameter from the first and last ten slices to calculate percent diameter stenosis.
 
-*Screenshot placeholder for the phantom in the ImFusion viewer.*
+## ImFusion viewer
+
+![Three orthogonal slices and a 3D rendering of the narrowed vessel](docs/images/imfusion-phantom.png)
+
+![Windowing panel with a window of 1000 and a level of 500](docs/images/imfusion-windowing.png)
+![View options showing the Global Illumination Volume Renderer](docs/images/imfusion-view-options.png)
 
 ## Run it
 
@@ -49,4 +54,4 @@ This is a portfolio project for a straight, synthetic vessel with a circular cro
 
 - Voxelization gives the narrowing a short plateau where several slices have the same measured diameter. I pick the middle slice among the tied minima.
 - The installed SDK documents image buffers in `(z, y, x, channels)` order and spacing in `(x, y, z)` order. I wrote the round-trip test with distinct dimensions and spacing values so an axis swap would be visible.
-- The NumPy suite passed all 30 tests in 1.90 seconds. After adding ImFusion, the run finished with 30 passed and 1 skipped in 1.45 seconds. The SDK reported a missing license during import, so the round trip and a successful viewer launch still need verification in a licensed session.
+- The NumPy suite passed all 30 tests in 1.90 seconds. After adding ImFusion, the run finished with 30 passed and 1 skipped in 1.45 seconds. The SDK reported a missing license during that run. The screenshots show the phantom open in the viewer, and the automated round trip still needs a licensed test run.
