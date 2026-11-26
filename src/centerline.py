@@ -18,18 +18,18 @@ def resample_centerline(
     if not np.isfinite(step_mm) or step_mm <= 0:
         raise ValueError("step_mm must be finite and positive.")
 
-    segment_mm = np.linalg.norm(np.diff(points, axis=0), axis=1) * spacing_mm
-    distance_mm = np.concatenate(([0.0], np.cumsum(segment_mm)))
-    if distance_mm[-1] == 0:
+    segments = np.linalg.norm(np.diff(points, axis=0), axis=1)
+    distance = np.concatenate(([0.0], np.cumsum(segments)))
+    if distance[-1] == 0:
         raise ValueError("centerline must have positive length.")
 
-    distinct = np.concatenate(([True], np.diff(distance_mm) > 0))
-    intervals = max(1, int(np.ceil(distance_mm[-1] / step_mm)))
-    sampled_distance_mm = np.linspace(0, distance_mm[-1], intervals + 1)
+    distinct = np.concatenate(([True], np.diff(distance) > 0))
+    intervals = max(1, int(np.ceil(distance[-1] / (step_mm / spacing_mm))))
+    sampled_distance = np.linspace(0, distance[-1], intervals + 1)
     sampled = np.column_stack(
-        [np.interp(sampled_distance_mm, distance_mm[distinct], axis[distinct]) for axis in points.T]
+        [np.interp(sampled_distance, distance[distinct], axis[distinct]) for axis in points.T]
     )
-    return sampled, sampled_distance_mm
+    return sampled, sampled_distance * spacing_mm
 
 
 def estimate_tangents(
