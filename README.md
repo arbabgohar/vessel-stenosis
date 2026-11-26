@@ -34,17 +34,6 @@ I bend the synthetic vessel into a circular arc with a known narrowing. I took s
 
 ![Straightened vessel with the narrowing marked, diameter profile, and 3D centerline colored by diameter](docs/curved_preview.png)
 
-### Run it
-
-From the repository root in PowerShell, using the project’s `.venv`:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install numpy scipy matplotlib pytest
-.\.venv\Scripts\python.exe -m pytest -v -rs
-.\.venv\Scripts\python.exe scripts/preview_curved.py
-```
-
-The preview saves to `docs/curved_preview.png`. The ImFusion round-trip test skips when the SDK or its license is unavailable.
 
 ![PowerShell output showing 50.29% measured stenosis and the saved preview path](docs/images/curved-preview-output.png)
 
