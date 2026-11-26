@@ -1,6 +1,6 @@
 # Vessel Stenosis Measurement
 
-Built this project to get little hands-on with ImFusion Python SDK.
+My experience with Class III interventional devices made me curious about how vessel narrowing is measured. I built this project to explore that with synthetic vessels and get hands-on with the ImFusion Python SDK.
 
 I generate a synthetic 3D vessel with a known narrowing, then use NumPy to threshold each slice and estimate its equivalent circular diameter. I compare the smallest diameter with the median diameter from the first and last ten slices to calculate percent diameter stenosis.
 
@@ -28,9 +28,48 @@ I generate a synthetic 3D vessel with a known narrowing, then use NumPy to thres
 
 VS-001 through VS-010 are in [`tests/test_stenosis.py`](tests/test_stenosis.py). VS-011 is in [`tests/test_imfusion_io.py`](tests/test_imfusion_io.py).
 
+## Curved vessel
+
+I bend the synthetic vessel into a circular arc with a known narrowing. I take slices perpendicular to the centerline, threshold the lumen, and use its area to estimate the diameter. I compare the smallest diameter with the median diameter from the first and last 15% of the path.
+
+![Straightened vessel with the narrowing marked, diameter profile, and 3D centerline colored by diameter](docs/curved_preview.png)
+
+### Run it
+
+From the repository root in PowerShell, using the project’s `.venv`:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install numpy scipy matplotlib pytest
+.\.venv\Scripts\python.exe -m pytest -v -rs
+.\.venv\Scripts\python.exe scripts/preview_curved.py
+```
+
+The preview saves to `docs/curved_preview.png`. The ImFusion round-trip test skips when the SDK or its license is unavailable.
+
+### Curved-vessel requirements
+
+| ID | What I checked | Test |
+| --- | --- | --- |
+| VC-001 | Circular arc, cosine narrowing, and ground-truth stenosis | `test_VC001_curved_geometry_and_ground_truth` |
+| VC-002 | Invalid phantom inputs raise `ValueError` | `test_VC002_invalid_curved_phantom_parameters` |
+| VC-003 | Seeded Gaussian noise is reproducible | `test_VC003_seeded_gaussian_noise_is_reproducible` |
+| VC-004 | Sample spacing and total arc length are within 1% | `test_VC004_resampling_preserves_arc_length_and_equal_spacing` |
+| VC-005 | Perpendicular sections and orthonormal frames with no added twist | `test_VC005_frames_are_orthonormal_and_parallel_transported`, `test_VC005_sections_sample_the_perpendicular_plane` |
+| VC-006 | Straight-vessel measurements agree within 1 percentage point | `test_VC006_matches_straight_vessel_measurement` |
+| VC-007 | Noise-free stenosis is within 5 percentage points at 25%, 50%, and 75% | `test_VC007_accuracy_noise_free` |
+| VC-008 | Perpendicular slices give a smaller error on the 50% curved phantom | `test_VC008_perpendicular_slices_reduce_error` |
+| VC-009 | Accuracy with seeded noise (σ = 100), jitter up to 0.5 voxel, and both combined | `test_VC009_accuracy_with_noise_and_jitter` |
+| VC-010 | Lengths and diameters scale with voxel spacing, and stenosis stays the same | `test_VC010_spacing_scales_centerline_and_sampling_lengths`, `test_VC010_spacing_scales_profile_without_changing_percent` |
+| VC-011 | Invalid volumes, centerlines, and paths without lumen raise `ValueError` | `test_VC011_invalid_measurement_inputs` |
+
+### Things I ran into
+
+- Some samples landed exactly at the threshold on the straight vessel. Shifting the measurement grid by a quarter voxel brought the result back in line with the original test.
+- On the 50% curved phantom, perpendicular slicing had 0.44 percentage points of error. Axis-aligned slicing had 5.63.
+
 ## Limits
 
-This is a portfolio project for a straight, synthetic vessel with a circular cross-section and uniform voxel spacing. The measurement uses NumPy. I use ImFusion for image conversion and visualization. The viewer is a manual check. This is not a medical device.
+I use synthetic vessels with circular lumens and uniform voxel spacing. The curved phantom has a large bend radius compared with the vessel radius, and the measurement uses intensity thresholding. I haven’t validated it on patient data. This is not a medical device. I use ImFusion for image conversion and a manual viewer check.
 
 ## Learning curve
 
