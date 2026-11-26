@@ -2,7 +2,7 @@
 
 My experience with Class III interventional devices made me curious about how vessel narrowing is measured. I built this project to explore that with synthetic vessels and get hands-on with the ImFusion Python SDK.
 
-I generate a synthetic 3D vessel with a known narrowing, then use NumPy to threshold each slice and estimate its equivalent circular diameter. I compare the smallest diameter with the median diameter from the first and last ten slices to calculate percent diameter stenosis.
+I generated a synthetic 3D vessel with a known narrowing, then use NumPy to threshold each slice and estimate its equivalent circular diameter. I compared the smallest diameter with the median diameter from the first and last ten slices to calculate percent diameter stenosis.
 
 ## ImFusion viewer
 
@@ -30,7 +30,7 @@ VS-001 through VS-010 are in [`tests/test_stenosis.py`](tests/test_stenosis.py).
 
 ## Curved vessel
 
-I bend the synthetic vessel into a circular arc with a known narrowing. I take slices perpendicular to the centerline, threshold the lumen, and use its area to estimate the diameter. I compare the smallest diameter with the median diameter from the first and last 15% of the path.
+I bend the synthetic vessel into a circular arc with a known narrowing. I took slices perpendicular to the centerline, threshold the lumen, and use its area to estimate the diameter and compared the smallest diameter with the median diameter from the first and last 15% of the path.
 
 ![Straightened vessel with the narrowing marked, diameter profile, and 3D centerline colored by diameter](docs/curved_preview.png)
 
@@ -66,11 +66,6 @@ The preview saves to `docs/curved_preview.png`. The ImFusion round-trip test ski
 | VC-010 | Lengths and diameters scale with voxel spacing, and stenosis stays the same | `test_VC010_spacing_scales_centerline_and_sampling_lengths`, `test_VC010_spacing_scales_profile_without_changing_percent` |
 | VC-011 | Invalid volumes, centerlines, and paths without lumen raise `ValueError` | `test_VC011_invalid_measurement_inputs` |
 
-### Things I ran into
-
-- Some samples landed exactly at the threshold on the straight vessel. Shifting the measurement grid by a quarter voxel brought the result back in line with the original test.
-- On the 50% curved phantom, perpendicular slicing had 0.44 percentage points of error. Axis-aligned slicing had 5.63.
-
 ## Limits
 
 I use synthetic vessels with circular lumens and uniform voxel spacing. The curved phantom has a large bend radius compared with the vessel radius, and the measurement uses intensity thresholding. I haven’t validated it on patient data. This is not a medical device. I use ImFusion for image conversion and a manual viewer check.
@@ -80,3 +75,6 @@ I use synthetic vessels with circular lumens and uniform voxel spacing. The curv
 - Voxelization gives the narrowing a short plateau where several slices have the same measured diameter. I pick the middle slice among the tied minima.
 - The installed SDK documents image buffers in `(z, y, x, channels)` order and spacing in `(x, y, z)` order. I wrote the round-trip test with distinct dimensions and spacing values so an axis swap would be visible.
 - The NumPy suite passed all 30 tests in 1.90 seconds. After adding ImFusion, the run finished with 30 passed and 1 skipped in 1.45 seconds. The SDK reported a missing license during that run. The screenshots show the phantom open in the viewer, and the automated round trip still needs a licensed test run.
+- Some samples landed exactly at the threshold on the straight vessel. Shifting the measurement grid by a quarter voxel brought the result back in line with the original test.
+- On the 50% curved phantom, perpendicular slicing had 0.44 percentage points of error. Axis-aligned slicing had 5.63.
+
