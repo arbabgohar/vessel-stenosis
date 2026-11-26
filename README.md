@@ -1,6 +1,6 @@
 # Vessel Stenosis Measurement
 
-I’m a quality and software V&V engineer in medical devices, and I built this project to learn the ImFusion Python SDK and practice tracing requirements to automated tests.
+Built this project to get little hands-on with ImFusion Python SDK.
 
 I generate a synthetic 3D vessel with a known narrowing, then use NumPy to threshold each slice and estimate its equivalent circular diameter. I compare the smallest diameter with the median diameter from the first and last ten slices to calculate percent diameter stenosis.
 
@@ -8,25 +8,7 @@ I generate a synthetic 3D vessel with a known narrowing, then use NumPy to thres
 
 ![Three orthogonal slices and a 3D rendering of the narrowed vessel](docs/images/imfusion-phantom.png)
 
-![Windowing panel with a window of 1000 and a level of 500](docs/images/imfusion-windowing.png)
-![View options showing the Global Illumination Volume Renderer](docs/images/imfusion-view-options.png)
 
-## Run it
-
-From the repository root in PowerShell, create a virtual environment if you don’t already have one and install the dependencies.
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install numpy pytest
-.\.venv\Scripts\python.exe -m pip install "imfusion-sdk[webshop-base]==0.12.0" --extra-index-url https://pypi.imfusion.com/simple
-```
-
-For the ImFusion test and viewer, set `IMFUSION_LICENSE_KEY` in the environment where you run Python. Then run the suite or open the phantom.
-
-```powershell
-.\.venv\Scripts\python.exe -m pytest -v -rs
-.\.venv\Scripts\python.exe scripts/show_phantom.py
-```
 
 ## Requirements and tests
 
@@ -50,7 +32,7 @@ VS-001 through VS-010 are in [`tests/test_stenosis.py`](tests/test_stenosis.py).
 
 This is a portfolio project for a straight, synthetic vessel with a circular cross-section and uniform voxel spacing. The measurement uses NumPy. I use ImFusion for image conversion and visualization. The viewer is a manual check. This is not a medical device.
 
-## Things I ran into
+## Learning curve
 
 - Voxelization gives the narrowing a short plateau where several slices have the same measured diameter. I pick the middle slice among the tied minima.
 - The installed SDK documents image buffers in `(z, y, x, channels)` order and spacing in `(x, y, z)` order. I wrote the round-trip test with distinct dimensions and spacing values so an axis swap would be visible.
