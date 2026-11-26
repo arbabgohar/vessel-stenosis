@@ -1,6 +1,6 @@
 # Vessel Stenosis Measurement
 
-Built this project to learn the ImFusion Python SDK and practice tracing requirements to automated tests.
+Built this project to get little hands-on with ImFusion Python SDK.
 
 I generate a synthetic 3D vessel with a known narrowing, then use NumPy to threshold each slice and estimate its equivalent circular diameter. I compare the smallest diameter with the median diameter from the first and last ten slices to calculate percent diameter stenosis.
 
