@@ -1,6 +1,8 @@
 # Vessel Stenosis Measurement
 
-My experience with Class III interventional devices made me curious about how vessel narrowing is measured. I built this project to explore that with synthetic vessels and get hands-on with the ImFusion Python SDK.
+My work with interventional devices made me curious about how vessel narrowing is measured, so I started by building straight and curved synthetic vessels with known narrowing. I then built a desktop tool that lets me pick two points in an ImageCAS coronary artery mask, trace the vessel between them, and see where its diameter is smallest. The tool measures the geometry of the supplied segmentation and does not detect or grade disease.
+
+[ImageCAS dataset (non-commercial use)](https://github.com/XiaoweiXu/ImageCAS-A-Large-Scale-Dataset-and-Benchmark-for-Coronary-Artery-Segmentation-based-on-CT) · [Zeng et al., *ImageCAS: A Large-Scale Dataset and Benchmark for Coronary Artery Segmentation based on Computed Tomography Angiography Images*](https://doi.org/10.1016/j.compmedimag.2023.102287)
 
 I generated a synthetic 3D vessel with a known narrowing, then use NumPy to threshold each slice and estimate its equivalent circular diameter. I compared the smallest diameter with the median diameter from the first and last ten slices to calculate percent diameter stenosis.
 
