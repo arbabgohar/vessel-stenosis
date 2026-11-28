@@ -2,16 +2,18 @@
 
 My work with interventional devices made me curious about how vessel narrowing is measured, so I started by building straight and curved synthetic vessels with known narrowing. I then built a desktop tool that lets me pick two points in an ImageCAS coronary artery mask, trace the vessel between them, and see where its diameter is smallest. The tool measures the geometry of the supplied segmentation and does not detect or grade disease.
 
+## Vessel Measurement
+<img width="1920" height="1080" alt="VesselMeasurementTool" src="https://github.com/user-attachments/assets/de2534a0-1c33-47a0-8a35-ef270bdefd68" />
+
+
 [ImageCAS dataset (non-commercial use)](https://github.com/XiaoweiXu/ImageCAS-A-Large-Scale-Dataset-and-Benchmark-for-Coronary-Artery-Segmentation-based-on-CT) · [Zeng et al., *ImageCAS: A Large-Scale Dataset and Benchmark for Coronary Artery Segmentation based on Computed Tomography Angiography Images*](https://doi.org/10.1016/j.compmedimag.2023.102287)
 
-I generated a synthetic 3D vessel with a known narrowing, then use NumPy to threshold each slice and estimate its equivalent circular diameter. I compared the smallest diameter with the median diameter from the first and last ten slices to calculate percent diameter stenosis.
+Generated a synthetic 3D vessel with a known narrowing, then use NumPy to threshold each slice and estimate its equivalent circular diameter. I compared the smallest diameter with the median diameter from the first and last ten slices to calculate percent diameter stenosis.
 
 ## ImFusion viewer
 
 ![Three orthogonal slices and a 3D rendering of the narrowed vessel](docs/images/imfusion-phantom.png)
 
-## Vessel Measurement
-<img width="1920" height="1080" alt="VesselMeasurementTool" src="https://github.com/user-attachments/assets/de2534a0-1c33-47a0-8a35-ef270bdefd68" />
 
 
 ## Requirements and tests
@@ -34,7 +36,7 @@ VS-001 through VS-010 are in [`tests/test_stenosis.py`](tests/test_stenosis.py).
 
 ## Curved vessel
 
-I bend the synthetic vessel into a circular arc with a known narrowing. I took slices perpendicular to the centerline, threshold the lumen, and use its area to estimate the diameter and compared the smallest diameter with the median diameter from the first and last 15% of the path.
+Bended the synthetic vessel into a circular arc with a known narrowing. I took slices perpendicular to the centerline, threshold the lumen, and use its area to estimate the diameter and compared the smallest diameter with the median diameter from the first and last 15% of the path.
 
 ![Straightened vessel with the narrowing marked, diameter profile, and 3D centerline colored by diameter](docs/curved_preview.png)
 
