@@ -16,8 +16,8 @@ from volume_io import load_nifti_pair, resample_isotropic
 SECTION_SIZE = 101
 
 
-def main(argv=None) -> None:
-    parser = argparse.ArgumentParser(description="Measure the geometry of a vessel segmentation.")
+def case_parser(description: str, output_help: str) -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description=description)
     parser.add_argument("--image", type=Path, required=True, help="CT NIfTI file")
     parser.add_argument("--mask", type=Path, required=True, help="Label NIfTI file")
     parser.add_argument("--labels", type=float, nargs="+", required=True, help="Values to treat as vessel")
@@ -26,25 +26,39 @@ def main(argv=None) -> None:
     parser.add_argument("--end", type=int, nargs=3, required=True, metavar=("Z", "Y", "X"),
                         help="End voxel in the canonical volume before resampling")
     parser.add_argument("--spacing", type=float, default=0.4, help="Isotropic voxel spacing in mm (default 0.4)")
-    parser.add_argument("--output-dir", type=Path, required=True, help="Directory for the diameter profile CSV")
+    parser.add_argument("--output-dir", type=Path, required=True, help=output_help)
+    return parser
+
+
+def load_case_path(args: argparse.Namespace):
+    ct, mask, spacing, labels = load_nifti_pair(args.image, args.mask, args.labels)
+    endpoints = np.array([args.start, args.end])
+    for name, point in zip(("Start", "End"), endpoints):
+        if (point < 0).any() or (point >= mask.shape).any() or not mask[tuple(point)]:
+            raise ValueError(f"{name} is outside the vessel mask before resampling.")
+
+    isotropic_ct, isotropic_mask = resample_isotropic(ct, mask, spacing, args.spacing)
+    del ct, mask, isotropic_ct
+    # Resampling preserves the first voxel center, so only per-axis scale changes the indices.
+    start, end = np.rint(endpoints * np.asarray(spacing) / args.spacing).astype(np.intp)
+    path = extract_centerline(isotropic_mask, start, end, args.spacing)
+    return isotropic_mask, path, spacing, labels
+
+
+def measure_mask_path(mask, path, spacing_mm):
+    return measure_curved_stenosis(
+        mask, path, spacing_mm, threshold=0.5,
+        section_size=SECTION_SIZE, require_center_pixel=True,
+    )
+
+
+def main(argv=None) -> None:
+    parser = case_parser("Measure the geometry of a vessel segmentation.", "Directory for the diameter profile CSV")
     args = parser.parse_args(argv)
 
     try:
-        ct, mask, spacing, labels = load_nifti_pair(args.image, args.mask, args.labels)
-        endpoints = np.array([args.start, args.end])
-        for name, point in zip(("Start", "End"), endpoints):
-            if (point < 0).any() or (point >= mask.shape).any() or not mask[tuple(point)]:
-                raise ValueError(f"{name} is outside the vessel mask before resampling.")
-
-        isotropic_ct, isotropic_mask = resample_isotropic(ct, mask, spacing, args.spacing)
-        del ct, mask, isotropic_ct
-        # Resampling preserves the first voxel center, so only per-axis scale changes the indices.
-        start, end = np.rint(endpoints * np.asarray(spacing) / args.spacing).astype(np.intp)
-        path = extract_centerline(isotropic_mask, start, end, args.spacing)
-        result = measure_curved_stenosis(
-            isotropic_mask, path, args.spacing, threshold=0.5,
-            section_size=SECTION_SIZE, require_center_pixel=True,
-        )
+        isotropic_mask, path, spacing, labels = load_case_path(args)
+        result = measure_mask_path(isotropic_mask, path, args.spacing)
         points, _ = resample_centerline(path, args.spacing, step_mm=args.spacing)
 
         args.output_dir.mkdir(parents=True, exist_ok=True)
