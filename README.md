@@ -8,6 +8,8 @@ I generated a synthetic 3D vessel with a known narrowing, then use NumPy to thre
 
 ![Three orthogonal slices and a 3D rendering of the narrowed vessel](docs/images/imfusion-phantom.png)
 
+## Vessel Measurement
+<img width="1920" height="1080" alt="VesselMeasurementTool" src="https://github.com/user-attachments/assets/de2534a0-1c33-47a0-8a35-ef270bdefd68" />
 
 
 ## Requirements and tests
