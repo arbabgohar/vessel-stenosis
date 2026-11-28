@@ -26,6 +26,7 @@ def measure_curved_stenosis(
     step_mm: float | None = None,
     section_size: int = 62,
     pixel_spacing_mm: float | None = None,
+    require_center_pixel: bool = False,
 ) -> CurvedStenosisResult:
     points = np.asarray(centerline)
     if points.ndim != 2 or points.shape[1] != 3 or len(points) < 10:
@@ -35,6 +36,8 @@ def measure_curved_stenosis(
         step_mm = spacing_mm
     if pixel_spacing_mm is None:
         pixel_spacing_mm = spacing_mm / 2
+    if require_center_pixel and section_size % 2 == 0:
+        raise ValueError("An odd section size is required to sample the center pixel.")
     sections, distance_mm = sample_cross_sections(
         volume, points, spacing_mm, step_mm, section_size, pixel_spacing_mm
     )
@@ -46,7 +49,7 @@ def measure_curved_stenosis(
     center = (section_size - 1) / 2
     offsets_mm = (np.arange(section_size) - center) * pixel_spacing_mm
     center_distance_mm = np.hypot(offsets_mm[:, None], offsets_mm[None, :])
-    near_center = center_distance_mm <= spacing_mm
+    near_center = center_distance_mm <= (0 if require_center_pixel else spacing_mm)
     pixel_counts = np.array([
         _lumen_pixel_count(section > threshold, near_center, center_distance_mm)
         for section in sections
