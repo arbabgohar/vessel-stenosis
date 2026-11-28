@@ -2,5 +2,6 @@ numpy
 scipy
 matplotlib
 pytest
+nibabel
 --extra-index-url https://pypi.imfusion.com/simple
 imfusion-sdk[webshop-base]==0.12.0
