@@ -71,7 +71,7 @@ def make_figure(mask, path, spacing_mm):
         set_limit(center - half_span, center + half_span)
     arc.set_box_aspect(half_spans, zoom=0.84)
     figure.colorbar(line, ax=arc, orientation="horizontal", shrink=0.8, pad=0.04, label="Diameter (mm)")
-    return figure
+    return figure, result
 
 
 def main(argv=None) -> None:
@@ -82,7 +82,7 @@ def main(argv=None) -> None:
         if output.is_relative_to(ROOT):
             raise ValueError("Choose an output folder outside the repository.")
         mask, path, _, _ = load_case_path(args)
-        figure = make_figure(mask, path, args.spacing)
+        figure, _ = make_figure(mask, path, args.spacing)
         output.parent.mkdir(parents=True, exist_ok=True)
         figure.savefig(output, dpi=160)
     except (OSError, ValueError) as exc:

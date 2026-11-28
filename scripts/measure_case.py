@@ -32,17 +32,22 @@ def case_parser(description: str, output_help: str) -> argparse.ArgumentParser:
 
 def load_case_path(args: argparse.Namespace):
     ct, mask, spacing, labels = load_nifti_pair(args.image, args.mask, args.labels)
-    endpoints = np.array([args.start, args.end])
+    isotropic_mask, path = prepare_case_path(ct, mask, spacing, args.start, args.end, args.spacing)
+    return isotropic_mask, path, spacing, labels
+
+
+def prepare_case_path(ct, mask, spacing, start, end, target_spacing):
+    endpoints = np.array([start, end])
     for name, point in zip(("Start", "End"), endpoints):
         if (point < 0).any() or (point >= mask.shape).any() or not mask[tuple(point)]:
             raise ValueError(f"{name} is outside the vessel mask before resampling.")
 
-    isotropic_ct, isotropic_mask = resample_isotropic(ct, mask, spacing, args.spacing)
-    del ct, mask, isotropic_ct
+    isotropic_ct, isotropic_mask = resample_isotropic(ct, mask, spacing, target_spacing)
+    del isotropic_ct
     # Resampling preserves the first voxel center, so only per-axis scale changes the indices.
-    start, end = np.rint(endpoints * np.asarray(spacing) / args.spacing).astype(np.intp)
-    path = extract_centerline(isotropic_mask, start, end, args.spacing)
-    return isotropic_mask, path, spacing, labels
+    start, end = np.rint(endpoints * np.asarray(spacing) / target_spacing).astype(np.intp)
+    path = extract_centerline(isotropic_mask, start, end, target_spacing)
+    return isotropic_mask, path
 
 
 def measure_mask_path(mask, path, spacing_mm):

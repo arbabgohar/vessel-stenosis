@@ -2,7 +2,6 @@ import argparse
 import sys
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import ListedColormap
 from matplotlib.widgets import Slider
@@ -14,10 +13,10 @@ sys.path.insert(0, str(ROOT / "src"))
 from volume_io import load_nifti_pair
 
 
-def show_slices(ct, mask, spacing) -> None:
+def populate_slice_figure(figure, ct, mask, spacing, on_selection=None):
     position = [length // 2 for length in ct.shape]
     low, high = np.percentile(ct[::4, ::4, ::4], (2, 98))
-    figure, axes = plt.subplots(1, 3, figsize=(13, 6))
+    axes = figure.subplots(1, 3)
     figure.subplots_adjust(left=0.07, right=0.97, bottom=0.3, top=0.81, wspace=0.32)
     summary = figure.suptitle("")
     figure.text(0.5, 0.92, "Click a slice to select a voxel. Use the sliders to move through the volume.", ha="center")
@@ -54,6 +53,8 @@ def show_slices(ct, mask, spacing) -> None:
             horizontal.set_ydata([position[row], position[row]])
         inside = "inside vessel" if mask[tuple(position)] else "outside vessel"
         summary.set_text(f"Voxel (z, y, x) = {tuple(position)}  |  {inside}")
+        if on_selection is not None:
+            on_selection(tuple(position), bool(mask[tuple(position)]))
         figure.canvas.draw_idle()
 
     def move(index, value) -> None:
@@ -70,12 +71,21 @@ def show_slices(ct, mask, spacing) -> None:
         for index, coordinate in ((row, event.ydata), (col, event.xdata)):
             voxel = int(np.clip(round(coordinate), 0, ct.shape[index] - 1))
             sliders[index].set_val(voxel)
-        print("Selected voxel (z y x):", *position, flush=True)
+        if on_selection is None:
+            print("Selected voxel (z y x):", *position, flush=True)
 
     for index, slider in enumerate(sliders):
         slider.on_changed(lambda value, axis=index: move(axis, value))
     figure.canvas.mpl_connect("button_press_event", pick)
     redraw()
+    return sliders
+
+
+def show_slices(ct, mask, spacing) -> None:
+    import matplotlib.pyplot as plt
+
+    figure = plt.figure(figsize=(13, 6))
+    sliders = populate_slice_figure(figure, ct, mask, spacing)
     plt.show()
 
 
